@@ -9,8 +9,12 @@
 ## Versione corrente
 
 - **App version**: `0.4.0` (vedi `app/VERSION`)
-- **Ultimo aggiornamento di questo file**: 2026-05-30
-- **Stato**: Fase 5 completata — Stage B MarkItDown implementato, validato E2E in browser, artefatti v0.4.0 buildati. Resta solo upload su GitHub Release + cleanup file temp.
+- **Ultimo aggiornamento di questo file**: 2026-05-31
+- **Stato**: Fase 5 completata — Stage B MarkItDown rilasciato (release GitHub v0.4.0,
+  repo public). Post-release applicati: fix folder picker (PowerShell, no tkinter) + fix
+  ordering update bootstrap + cleanup dead code; source completa pushata su `main`
+  (commit `73f18e9`). **Pendente**: i fix folder_picker/bootstrap NON sono ancora in una
+  release → serve **v0.4.1** perché arrivino ai client esistenti via auto-update.
 
 > **Fase 5 / v0.4.0 — MarkItDown (Stage B):** i formati Office/Web/dati
 > (docx, pptx, xlsx, html, htm, csv, json, xml, epub) vengono convertiti in
@@ -163,7 +167,7 @@ Use case primario: utente singolo su Windows che vuole OCR locale (privacy, no c
 
 ---
 
-### Fase 5 — v0.4.0 (Stage B MarkItDown — TDD completato, E2E browser da fare)
+### Fase 5 — v0.4.0 (Stage B MarkItDown — completata e rilasciata)
 - [x] Modulo `app/markitdown_loader.py` (TDD): `SUPPORTED_MARKITDOWN_EXTS`,
   `is_markitdown_ext`, `convert_to_markdown` (tempfile col suffisso giusto +
   lazy-import markitdown). Indipendente da Streamlit.
@@ -181,7 +185,6 @@ Use case primario: utente singolo su Windows che vuole OCR locale (privacy, no c
 - [x] **E2E browser** (Playwright su app live 8501, 2026-05-30): docx+xlsx+csv reali →
   3 pagine sintetiche, placeholder info-file a sx, markdown/tabelle a dx, NESSUN OCR;
   export `.md` combinato OK; restore cross-session OK (`-2` ricostruito, md da cache).
-  Fixtures in `data/e2e_fixtures/`.
 - [x] Build artefatti v0.4.0 (2026-05-30): `dist/glm-ocr-app-v0.4.0.zip` (32.7 KB,
   include markitdown_loader.py) + `manifest.json` (requirements_changed=true,
   pull_required=false) + `GLM-OCR-Setup-v0.4.0.exe` (2.0 MB). Versioni vecchie
@@ -192,6 +195,21 @@ Use case primario: utente singolo su Windows che vuole OCR locale (privacy, no c
   `releases/latest` API non-auth ritorna v0.4.0; download asset non-auth = 200;
   manifest parsato OK da `updater.py` (`requests` rileva UTF-8-SIG, BOM innocuo) →
   `requirements_changed=true` letto correttamente. (`build_installer.ps1` + `build_update.ps1 -RequirementsChanged`).
+
+### Fase 5.1 — fix post-release (committati su `main`, non ancora rilasciati)
+- [x] **Folder picker senza tkinter** (`app/folder_picker.py`): `FolderBrowserDialog` via
+  PowerShell. Il Python embedded non ha tkinter → prima il bottone "Cambia..." restava
+  disabilitato. Test `tests/test_folder_picker.py` (7 verdi). Totale suite: 30 test.
+- [x] **Fix ordering update in `installer/bootstrap.ps1`**: re-check requirements/modello
+  DOPO `apply_pending_update()`, così un update che cambia dipendenze si applica in un solo
+  riavvio (prima ne servivano due). NB: bootstrap NON viaggia negli zip update → il fix vale
+  solo per fresh-install e update futuri.
+- [x] Rimosso `app/ocr_runner.py` (dead code, 0 import) + pulizia file temp/junk.
+- [x] Source completa pushata su `AlexRM85-it/glm-ocr` `main` (commit `73f18e9`): aggiunti al
+  repo `installer/`, `release/`, `tests/`, `docs/`, `.gitignore`, `LICENSE.txt`,
+  `PROJECT_STATE.md`, `Avvia GLM-OCR.bat` (erano fuori dal push iniziale).
+- [ ] **Release v0.4.1**: bump `app/VERSION` → rebuild exe/zip/manifest → `gh release create
+  v0.4.1` per consegnare il fix folder_picker ai client esistenti via auto-update.
 
 ---
 

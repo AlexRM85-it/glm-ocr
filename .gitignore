@@ -8,6 +8,13 @@ env/
 .idea/
 .vscode/
 .DS_Store
+.pytest_cache/
+
+# Tooling locale agente (non parte del progetto)
+.claude/
+.agents/
+.playwright-mcp/
+skills-lock.json
 
 # Runtime / dati / log popolati al primo avvio (mai committati).
 runtime/*
