@@ -198,7 +198,44 @@ La skill è prosa + template, non codice eseguibile. Verifica:
 - **Doppio promemoria resume** (CLAUDE.md riga + hook SessionStart): ridondanza voluta,
   basso costo; la riga CLAUDE.md è il fallback se gli hook non sono attivi.
 
-## Prossimi step
+## Aggiornamento implementazione (2026-05-31)
 
-→ writing-plans: piano di implementazione (creazione file skill + template + reference +
-hook, e verifica sui 5 punti di testing).
+Durante l'implementazione sono emerse due deviazioni rispetto al design sopra, decise con
+Ale e verificate E2E:
+
+1. **CLAUDE.md NON è creato da `adopt`.** Esiste già un'infrastruttura globale: hook
+   `SessionStart` → `~/.claude/hooks/auto-claude-md.ps1` copia
+   `~/.claude/templates/CLAUDE.repo-template.md` in ogni repo git senza CLAUDE.md. La
+   riga-convenzione dev-state è stata aggiunta **al template globale** → ogni nuovo repo la
+   eredita a costo zero. `adopt` la inietta solo nei CLAUDE.md vecchi pre-template.
+
+2. **Gli hook dev-state sono GLOBALI**, non per-progetto. Vivono in `~/.claude/settings.json`
+   (coerenti col pattern di `auto-claude-md`), ispezionano il singolo repo (presenza di
+   `PROJECT_STATE.md`). `adopt` non scrive più `.claude/settings.json` per-progetto → meno
+   invasivo, niente path macchina-specifici, niente da versionare per repo. Trade-off: gli
+   hook non sono versionati col repo — ottimale per dev singolo; per team servirebbero hook
+   di progetto.
+
+3. **Chaining `/init` → adopt** implementato come hook globale `UserPromptSubmit`
+   (`dev-state-init-chain.ps1`): rileva il prompt `/init` e inietta `additionalContext` che
+   istruisce di eseguire anche adopt. Affidabile, non 100% deterministico (prosa), fallback =
+   riga-convenzione in CLAUDE.md.
+
+### File realizzati
+- Skill: `~/.claude/skills/dev-state/{SKILL.md, templates/PROJECT_STATE.template.md,
+  templates/README.template.md, references/{adopt,resume,checkpoint,suspend}.md}`
+- Hook: `~/.claude/hooks/{dev-state-init-chain,dev-state-resume,dev-state-checkpoint}.ps1`
+- Edit: `~/.claude/templates/CLAUDE.repo-template.md` (blocco STATO DEL PROGETTO) +
+  `~/.claude/settings.json` (3 hook aggiunti, merge additivo)
+
+### Gotcha scoperto
+- **PowerShell 5.1 legge i `.ps1` senza BOM come ANSI** → le stringhe con accentate (`è`,`ì`)
+  finiscono mojibake nell'output (`Ã¨`). Fix: stringhe degli hook tenute in **ASCII puro**.
+
+### Verifica E2E (eseguita 2026-05-31)
+- `settings.json` valido dopo merge; hook caveman/auto-claude-md intatti. ✅
+- init-chain: spara su `/init`, muto su prompt normale. ✅
+- resume: in repo con PROJECT_STATE → messaggio resume; senza ma con commit → suggerisce
+  adopt; encoding pulito. ✅
+- checkpoint: reminder su modifiche non riflesse, throttle per-sessione (1 volta). ✅
+- repo temp: `auto-claude-md` crea CLAUDE.md col blocco dev-state. ✅
