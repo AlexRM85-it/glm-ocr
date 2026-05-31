@@ -22,7 +22,7 @@ from typing import Callable
 import requests
 
 
-# --- Configurazione GitHub (da personalizzare prima del primo rilascio) ---
+# --- Configurazione GitHub ---
 GITHUB_OWNER = "AlexRM85-it"
 GITHUB_REPO = "glm-ocr"
 

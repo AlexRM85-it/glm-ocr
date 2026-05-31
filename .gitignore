@@ -1,0 +1,22 @@
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+env/
+.env
+.idea/
+.vscode/
+.DS_Store
+
+# Runtime / dati / log popolati al primo avvio (mai committati).
+runtime/*
+!runtime/.gitkeep
+data/*
+!data/.gitkeep
+logs/*
+!logs/.gitkeep
+
+# Build artifacts
+dist/
+*.log

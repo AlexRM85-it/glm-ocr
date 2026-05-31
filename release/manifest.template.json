@@ -1,0 +1,14 @@
+{
+  "version": "${version}",
+  "min_python": "3.12",
+  "requirements_changed": ${requirements_changed},
+  "model": {
+    "tag": "${model_tag}",
+    "pull_required": ${model_pull_required}
+  },
+  "asset": {
+    "zip_name": "${zip_name}",
+    "sha256": "${sha256}"
+  },
+  "notes": "${notes}"
+}
